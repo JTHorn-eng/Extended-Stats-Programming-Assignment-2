@@ -1,10 +1,5 @@
-
-
-n <- 1000; h <- rep(NA,100); hmax <- 5
-h
-
-
-rep(1:(n%/%sum(1:hmax)+1), rep(1:5,6), lenght.out=)
+# Go to line 25 to see current function working. Rest of code builds intuition 
+# about how I came to this version of the solution.
 
 # Suppose n = 90 and hmax = 5
 # sum(1:hmax) = 15
@@ -28,11 +23,13 @@ n = 45; hmax = 6
 # more generally, if n is not a multiple of hmax it is tricky because the rep function 
 # only allows the same number of repeats
 
-n = 100000; hmax = 5
-# is it best to cut off the repeats to n and knowingly be left with more smaller households than I should,
+#################################################################
+# This is a working version.
+n = 100; hmax = 12
+# is it best to cut off the repeats to n and knowingly be left with more smaller households than I should (this is what I've done),
 # or is it better to have an equal number of households of all the sizes and just sample 1000 values from them?
 h <- sample(rep(rep(1:(hmax*((n%/%sum(hmax))+1)), rep(1:hmax, n%/%sum(hmax)+1)),length.out=n),n, replace=FALSE)
 h
 h <- sort(h)
 h
-rep((rep(1:20,rep(1:5,4))),length.out = 50)
+
