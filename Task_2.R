@@ -20,7 +20,7 @@ get.net = function(beta, h, n_c=15) {
     # Use outer product of beta vector
     sociability_matrix <- (n_c * outer(beta, beta)) / (beta_mean^2 * (n - 1))
 
-    # Fill new upper triangle matrix with runif values
+    # Fill new matrix with runif values
     random_matrix <- matrix(0, n, n)
     random_matrix <- runif(n * n)
 
@@ -28,16 +28,17 @@ get.net = function(beta, h, n_c=15) {
     result_matrix <- matrix(0, n, n)
     result_matrix[sociability_matrix > random_matrix] <- 2
 
-    # Add upper triangle of the results matrix to the upper triangle of M
+    # Filter upper triangle of M by the upper triangle of the results_matrix
     mask <- upper.tri(result_matrix) & result_matrix == 2
     M[mask] <- result_matrix[mask]
 
     # Mirror the upper tri to the lower
     M[lower.tri(M)] <- t(M)[lower.tri(M)]
 
-    # Output a list of indices, 
+    # Output a list of indices
     return(lapply(seq_len(nrow(M)), function(i) which(M[i, ] == 2)))
 
 }
+
 
 output <- get.net(runif(n), h1,15)
