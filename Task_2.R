@@ -10,9 +10,7 @@ h1 <- rep(rep(1:n, sample(1:hmax,n, replace=TRUE)), length.out=n)
 get.net = function(beta, h, n_c=15) {
 
     # Setup M
-    M <- matrix(h,n,n)
-    Mt <- t(M)
-    M <- 1*(Mt == M)
+    M <- outer(h1,h1,FUN="==")
 
     beta_mean <- mean(beta)
 
@@ -21,12 +19,11 @@ get.net = function(beta, h, n_c=15) {
     sociability_matrix <- (n_c * outer(beta, beta)) / (beta_mean^2 * (n - 1))
 
     # Fill new matrix with runif values
-    random_matrix <- matrix(0, n, n)
-    random_matrix <- runif(n * n)
+    probability_matrix <- matrix(runif(n * n), n, n)
 
     # Compare the matrix of probabilities
     result_matrix <- matrix(0, n, n)
-    result_matrix[sociability_matrix > random_matrix] <- 2
+    result_matrix[sociability_matrix > probability_matrix] <- 2
 
     # Filter upper triangle of M by the upper triangle of the results_matrix
     mask <- upper.tri(result_matrix) & result_matrix == 2
