@@ -7,22 +7,14 @@ n = 100; hmax = 5
 h1 <- rep(rep(1:n, sample(1:hmax,n, replace=TRUE)), length.out=n)
 
 # Task 2
-# I have started task 2. M outputs a matrix where aij = 1 if i and j share a household, 0 otherwise
-
 get.net = function(beta, h, n_c=15) {
 
-    # Setup 
+    # Setup M
     M <- matrix(h,n,n)
     Mt <- t(M)
     M <- 1*(Mt == M)
 
     beta_mean <- mean(beta)
-    #
-    # Only update 0 upper triangle values and use
-    # vectorised computation
-
-    # Identify zero entries only in the upper triangle (excluding diagonal)
-    zero_upper <- (M == 0) & upper.tri(M)
 
     # Compute the replacement matrix
     # Use outer product of beta vector
@@ -43,10 +35,9 @@ get.net = function(beta, h, n_c=15) {
     # Mirror the upper tri to the lower
     M[lower.tri(M)] <- t(M)[lower.tri(M)]
 
-    # Output a list of indices 
+    # Output a list of indices, 
     return(lapply(seq_len(nrow(M)), function(i) which(M[i, ] == 2)))
 
 }
 
-# Takes up to 10 seconds
 get.net(runif(n), h1,15)
