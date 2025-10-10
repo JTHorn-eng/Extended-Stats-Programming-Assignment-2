@@ -3,7 +3,7 @@
 # This vector is the first 1000 elements of up to 5000 elements, where each value 1:n has an
 # equal chance of being repeated 1:hmax times.
 # Indices of the vector that have the same value share the same house.
-n = 100; hmax = 5
+n = 10000; hmax = 5
 h1 <- rep(rep(1:n, sample(1:hmax,n, replace=TRUE)), length.out=n)
 
 # Task 2
@@ -11,12 +11,16 @@ h1 <- rep(rep(1:n, sample(1:hmax,n, replace=TRUE)), length.out=n)
 
 get.net = function(beta, h, n_c=15) {
 
-    # Setup 
     M <- matrix(h,n,n)
     Mt <- t(M)
     M <- 1*(Mt == M)
 
     beta_mean <- mean(beta)
+
+    # Apply sociability probabilities
+
+    # Using normal for looping for every matrix ij entry
+    # is very slow with n=10000, therefore:
     #
     # Only update 0 upper triangle values and use
     # vectorised computation
@@ -26,27 +30,48 @@ get.net = function(beta, h, n_c=15) {
 
     # Compute the replacement matrix
     # Use outer product of beta vector
-    sociability_matrix <- (n_c * outer(beta, beta)) / (beta_mean^2 * (n - 1))
+    replacement <- (n_c * outer(beta, beta)) / (beta_mean^2 * (n - 1))
 
-    # Fill new upper triangle matrix with runif values
-    random_matrix <- matrix(0, n, n)
-    random_matrix[upper.tri(random_matrix)] <- runif(n * (n - 1) / 2)
+    # Replace only those zeros in the upper triangle
+    M[zero_upper] <- replacement[zero_upper]
 
-    # Compare the matrix of probabilities
-    result_matrix <- matrix(0, n, n)
-    result_matrix[upper.tri(result_matrix) & sociability_matrix > random_matrix] <- 2
-
-    # Add upper triangle of the results matrix to the upper triangle of M
-    mask <- upper.tri(result_matrix) & result_matrix == 2
-    M[mask] <- result_matrix[mask]
-
-    # Mirror the upper tri to the lower
+    # # Mirror upper triangle to lower
     M[lower.tri(M)] <- t(M)[lower.tri(M)]
 
-    # Output a list of indices 
-    return(lapply(seq_len(nrow(M)), function(i) which(M[i, ] == 2)))
+    # Return list of vector indexes    
+    return(lapply(seq_len(ncol(M)), function(i) M[,i]))
 
 }
 
 # Takes up to 10 seconds
-get.net(runif(n), h1,15)
+task2_ls <- get.net(runif(n), h1,15)
+
+
+nseir = function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt = 100,pinf = .005) {
+
+
+    print('[INFO]  Running SEIR model for t days')
+    
+    S <- E <- I <- R <- rep(0,n)
+
+    # For each day ...
+    for (t in 1:nt) {
+
+
+
+
+
+
+
+
+
+    }
+
+
+}
+
+nseir(
+    beta = beta
+    ,h = h1
+    ,alink = get.net(beta, h1)
+)
