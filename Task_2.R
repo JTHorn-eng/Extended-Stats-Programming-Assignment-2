@@ -22,11 +22,11 @@ get.net = function(beta, h, n_c=15) {
 
     # Fill new upper triangle matrix with runif values
     random_matrix <- matrix(0, n, n)
-    random_matrix[upper.tri(random_matrix)] <- runif(n * (n - 1) / 2)
+    random_matrix <- runif(n * n)
 
     # Compare the matrix of probabilities
     result_matrix <- matrix(0, n, n)
-    result_matrix[upper.tri(result_matrix) & sociability_matrix > random_matrix] <- 2
+    result_matrix[sociability_matrix > random_matrix] <- 2
 
     # Add upper triangle of the results matrix to the upper triangle of M
     mask <- upper.tri(result_matrix) & result_matrix == 2
