@@ -17,7 +17,7 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
     
     ii_inf <- which(x==2)
     
-    for (i in ii){
+    for (i in ii_inf){
       house_ii <- which(h==h[i])
       pnet_ii <- alink[[i]]
       
@@ -101,7 +101,7 @@ alink <- get.net(runif(n), h1,15)
 
 #n <- 100
 beta <- runif(n)
-nseir(beta, h1, task2_ls)
+nseir(beta, h1, alink)
 
 
 
