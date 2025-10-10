@@ -3,7 +3,7 @@
 # This vector is the first 1000 elements of up to 5000 elements, where each value 1:n has an
 # equal chance of being repeated 1:hmax times.
 # Indices of the vector that have the same value share the same house.
-n = 100; hmax = 5
+n = 10000; hmax = 5
 h1 <- rep(rep(1:n, sample(1:hmax,n, replace=TRUE)), length.out=n)
 
 # Task 2
@@ -40,4 +40,4 @@ get.net = function(beta, h, n_c=15) {
 
 }
 
-get.net(runif(n), h1,15)
+output <- get.net(runif(n), h1,15)
