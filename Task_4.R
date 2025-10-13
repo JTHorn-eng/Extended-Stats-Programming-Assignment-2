@@ -19,7 +19,7 @@ plot_seir = function(seir_results, title = 'SEIR Model Results') {
         , col = "black"
         ,ylim = c(0, max_y)
         , xlab = "Day"
-        , ylab = "N"
+        , ylab = "Number of People"
     )
     lines(days, seir_results$E, col = "blue")
     lines(days, seir_results$I, col = "red")
