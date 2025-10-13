@@ -31,11 +31,10 @@
 #                      
 #                       
 #
-# James Horn     (%)  - Created the github repo.
-#                     - Implemented get.net function to find non-household sociability between population members
-#                     - Implemented plot_seir function to plot daily SEIR numbers over time
+# James Horn     (%)  
+#                     
+#                     
 #
-
 
 n = 10000; hmax = 5
 h1 <- rep(rep(1:n, sample(1:hmax,n, replace=TRUE)), length.out=n)
@@ -88,6 +87,9 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
   S <- E <- I <- R <- t_vec <- rep(0,nt)
   S[1] <- sum(x==0)
   I[1] <- sum(x==2)
+
+  pre_unif1 <- matrix(runif(n * nt), nrow = nt, ncol = n)
+  pre_unif2 <- matrix(runif(n * nt), nrow = nt, ncol = n)
   
   for (t in 2:nt){
 
@@ -105,8 +107,8 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
       
       rnet_con <- beta[i] * k
       
-      unif1 <- runif(n)
-      unif2 <- runif(n)
+      unif1 <- pre_unif1[, t]
+      unif2 <- pre_unif2[, t]
       
       inf_vec1 <- personal_con >= unif1
       inf_vec2 <- rnet_con >= unif2
@@ -141,14 +143,13 @@ plot_seir = function(seir_results, title = 'SEIR Model Results') {
         , seir_results$S
         , type = "l"
         , col = "black"
-        ,ylim = c(0, max_y)
+        , ylim = c(0, max_y)
         , xlab = "Day"
         , ylab = "Number of People"
     )
     lines(days, seir_results$E, col = "blue")
     lines(days, seir_results$I, col = "red")
     lines(days, seir_results$R, col = "green")
-
 
     legend("topright", legend = c("S (Susceptible)", "E (Exposed)", "I (Infectious)", "R (Recovered)"),
             col = c("black", "blue", "red", "green "), lty = 1, cex = 0.8)
@@ -160,12 +161,5 @@ plot_seir = function(seir_results, title = 'SEIR Model Results') {
 
 
 # Run Simulation
-
-
-Rprof("profile.out")
-
 alink <- get.net(runif(n), h1,15)
 nseir(beta, h1, alink)
-
-Rprof(NULL)
-summaryRprof("profile.out")
