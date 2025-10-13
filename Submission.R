@@ -1,6 +1,3 @@
-
-
-# ask simon, if you need to resample
 ###########################################################
 # File:    Submission.R
 # Authors: Colin McDonagh (s2213748), Matthew Poole (s2892092)
