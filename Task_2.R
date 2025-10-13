@@ -7,41 +7,35 @@ n = 10000; hmax = 5
 h1 <- rep(rep(1:n, sample(1:hmax,n, replace=TRUE)), length.out=n)
 
 # Task 2
-# I have started task 2. M outputs a matrix where aij = 1 if i and j share a household, 0 otherwise
-
 get.net = function(beta, h, n_c=15) {
 
-    M <- matrix(h,n,n)
-    Mt <- t(M)
-    M <- 1*(Mt == M)
+    # Setup M
+    M <- outer(h1,h1,FUN="==")
 
     beta_mean <- mean(beta)
 
-    # Apply sociability probabilities
-
-    # Using normal for looping for every matrix ij entry
-    # is very slow with n=10000, therefore:
-    #
-    # Only update 0 upper triangle values and use
-    # vectorised computation
-
-    # Identify zero entries only in the upper triangle (excluding diagonal)
-    zero_upper <- (M == 0) & upper.tri(M)
-
     # Compute the replacement matrix
     # Use outer product of beta vector
-    replacement <- (n_c * outer(beta, beta)) / (beta_mean^2 * (n - 1))
+    sociability_matrix <- (n_c * outer(beta, beta)) / (beta_mean^2 * (n - 1))
 
-    # Replace only those zeros in the upper triangle
-    M[zero_upper] <- replacement[zero_upper]
+    # Fill new matrix with runif values
+    probability_matrix <- matrix(runif(n * n), n, n)
 
-    # Mirror upper triangle to lower
+    # Compare the matrix of probabilities
+    result_matrix <- matrix(0, n, n)
+    result_matrix[sociability_matrix > probability_matrix] <- 2
+
+    # Filter upper triangle of M by the upper triangle of the results_matrix
+    mask <- upper.tri(result_matrix) & result_matrix == 2
+    M[mask] <- result_matrix[mask]
+
+    # Mirror the upper tri to the lower
     M[lower.tri(M)] <- t(M)[lower.tri(M)]
 
-    # Return list of vector indexes    
-    return(lapply(seq_len(ncol(M)), function(i) M[,i]))
+    # Output a list of indices
+    return(lapply(seq_len(nrow(M)), function(i) which(M[i, ] == 2)))
 
 }
 
-# Takes up to 10 seconds
-task2_ls <- get.net(runif(n), h1,15)
+
+output <- get.net(runif(n), h1,15)
