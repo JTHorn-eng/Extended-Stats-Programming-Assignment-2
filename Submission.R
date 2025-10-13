@@ -99,10 +99,6 @@ get.net = function(beta, h, n_c=15) {
 
 alink <- get.net(runif(n), h1,15)
 
-#n <- 100
+
 beta <- runif(n)
 nseir(beta, h1, alink)
-
-
-
-
