@@ -161,16 +161,13 @@ plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
         n_days <- length(seir_results$S)
         days <- 1:n_days
 
-
-        max_y <- max(c(seir_results$S, seir_results$E, seir_results$I), na.rm = TRUE)
-
         # Generate line graphs for each class member of the population per day
         plot(
             days
             , seir_results$S
             , type = "l"
             , col = "black"
-            , ylim = c(0, max_y)
+            , ylim = c(0, n)
             , xlab = "Day"
             , ylab = "Number of People"
         )
