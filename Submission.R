@@ -139,15 +139,32 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
 
 plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
 
-    par(mfrow = c(2, 2), mar = c(4, 4, 2, 1), oma = c(0, 0, 4, 6))  # extra right space in outer margin
+    #' Plot SEIR Model Results
+    #'
+    #' Plots a list of SEIR model results in a 2x2 grid layout, showing the
+    #' evolution of SEIR (Susceptible, Exposed, Infectious, Recovered) 
+    #' compartments for one or more simulation results. Each element of
+    #' `seir_results_list` should be a list containing vectors `S`, `E`,
+    #' `I`, and `R` representing daily counts of individuals in each state.
+    #' 
+    #' @param seir_results_list A list of all model results
+    #' @param title optional title for overall window
+    #'     
+
+    # Generate the grid layout with margin outside layout for legend
+    par(mfrow = c(2, 2), mar = c(4, 4, 2, 1), oma = c(0, 0, 4, 6))
+
     for (i in seq_along(seir_results_list)) {
         
+        # Obtain results timeframe in days
         seir_results <- seir_results_list[[i]]
         n_days <- length(seir_results$S)
         days <- 1:n_days
 
+
         max_y <- max(c(seir_results$S, seir_results$E, seir_results$I), na.rm = TRUE)
 
+        # Generate line graphs for each class member of the population per day
         plot(
             days
             , seir_results$S
@@ -161,7 +178,11 @@ plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
         lines(days, seir_results$I, col = "red")
         lines(days, seir_results$R, col = "green")
     }
+
+    # End layout plotting
     par(xpd = NA)
+
+    # Create a clear legend for all plots
     legend("topright",
         inset = c(-0.55, 0),
         legend = c("S (Susceptible)", "E (Exposed)", "I (Infectious)", "R (Recovered)"),
@@ -171,9 +192,8 @@ plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
         bty = "n",
         cex = 0.8)
 
-        mtext(title, outer = TRUE, line = -1.5, cex = 1.2)
-
-
+    # Add a title for the overall window
+    mtext(title, outer = TRUE, line = -1.5, cex = 1.2)
 }
 
 # Run Simulation
