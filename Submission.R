@@ -61,7 +61,7 @@ get.net = function(beta, h, n_c=15) {
   for (i in 1:n) {
     # Create probabilities that person i is connected with each other person. 
     # Only consider person i and onwards as these values will be symmetric.
-    network_probs <- c(rep(0,i-1), (beta[i]*nc*beta[i:n])/(mean(beta)^2*(n-1))) 
+    network_probs <- c(rep(0,i-1), (beta[i]*n_c*beta[i:n])/(mean(beta)^2*(n-1))) 
     
     # Create probabilities to compare the network probs with.
     # The first i values are 1 as the first (i-1) have already been assigned networks, and person i cannot be in a network with themself. 
@@ -180,6 +180,6 @@ plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
 alink <- get.net(runif(n), h1, 15)
 results_list <- list(
     nseir(beta, h1, alink)
-    ,nseir(beta, h1, alink)
+
 )
 plot_seir(results_list)
