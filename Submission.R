@@ -84,10 +84,10 @@ get.net = function(beta, h, n_c=15) {
 nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt = 100,pinf = .005){
   n <- length(h)
   ni <- round(n * pinf)
-
-  k <- (alpha[3]*nc*beta)/(mean(beta)^2*(n-1))
   
   x <- rep(0, n)
+  
+  k <- (alpha[3]*nc*beta) / (mean(beta)^2*(n-1))
   
   start_inf <- sample(1:n, ni, replace=FALSE)
   x[start_inf] <- 2
@@ -95,12 +95,12 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
   S <- E <- I <- R <- t_vec <- rep(0,nt)
   S[1] <- sum(x==0)
   I[1] <- sum(x==2)
-
-  pre_unif1 <- matrix(runif(n * nt), nrow = nt, ncol = n)
-  pre_unif2 <- matrix(runif(n * nt), nrow = nt, ncol = n)
+  
+  unif1 <- numeric(n)
+  unif2 <- numeric(n)
   
   for (t in 2:nt){
-
+    
     any_inf_vec <- rep(0,n)
     
     ii_inf <- which(x==2)
@@ -113,10 +113,10 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
       personal_con[house_ii] <- alpha[1]
       personal_con[pnet_ii] <- alpha[2]
       
-      rnet_con <- beta[i] * k
+      rnet_con <- k * beta[i]
       
-      unif1 <- pre_unif1[, t]
-      unif2 <- pre_unif2[, t]
+      unif1 <- runif(n)
+      unif2 <- runif(n)
       
       inf_vec1 <- personal_con >= unif1
       inf_vec2 <- rnet_con >= unif2
