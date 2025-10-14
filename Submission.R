@@ -139,8 +139,6 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
 
 plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
 
-    #' Plot SEIR Model Results
-    #'
     #' Plots a list of SEIR model results in a 2x2 grid layout, showing the
     #' evolution of SEIR (Susceptible, Exposed, Infectious, Recovered) 
     #' compartments for one or more simulation results. Each element of
