@@ -47,11 +47,12 @@ get.net = function(beta, h, n_c=15) {
   
   # Compute the replacement matrix
   # Use outer product of beta vector
-  sociability_matrix <- (n_c * outer(beta, beta)) / (beta_mean^2 * (n - 1))
+  sociability_matrix <- ((n_c * outer(beta, beta)) / (beta_mean^2 * (n - 1)))
   
   # Fill new matrix with runif values
   random_matrix <- matrix(0, n, n)
-  random_matrix <- runif(n * n)
+  random_matrix <- (runif(n * n))
+
   
   # Compare the matrix of probabilities
   result_matrix <- matrix(0, n, n)
@@ -126,37 +127,49 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
   return(list(S=S,E=E,I=I,R=R,t=t_vec))
 }
 
-plot_seir = function(seir_results, title = 'SEIR Model Results') {
+plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
 
-    par(mfcol=c(1,1),mar=c(4,4,2,1))
+    par(mfrow = c(2, 2), mar = c(4, 4, 2, 1), oma = c(0, 0, 4, 6))  # extra right space in outer margin
+    for (i in seq_along(seir_results_list)) {
+        
+        seir_results <- seir_results_list[[i]]
+        n_days <- length(seir_results$S)
+        days <- 1:n_days
 
-    n_days <- length(seir_results$S)
-    days <- 1:n_days
+        max_y <- max(c(seir_results$S, seir_results$E, seir_results$I), na.rm = TRUE)
 
-    max_y <- max(c(seir_results$S, seir_results$E, seir_results$I), na.rm = TRUE)
+        plot(
+            days
+            , seir_results$S
+            , type = "l"
+            , col = "black"
+            , ylim = c(0, max_y)
+            , xlab = "Day"
+            , ylab = "Number of People"
+        )
+        lines(days, seir_results$E, col = "blue")
+        lines(days, seir_results$I, col = "red")
+        lines(days, seir_results$R, col = "green")
+    }
+    par(xpd = NA)
+    legend("topright",
+        inset = c(-0.55, 0),
+        legend = c("S (Susceptible)", "E (Exposed)", "I (Infectious)", "R (Recovered)"),
+        col = c("black", "blue", "red", "green"),
+        lty = 1,
+        xpd = NA,
+        bty = "n",
+        cex = 0.8)
 
-    plot(
-        days
-        , seir_results$S
-        , type = "l"
-        , col = "black"
-        , ylim = c(0, max_y)
-        , xlab = "Day"
-        , ylab = "Number of People"
-    )
-    lines(days, seir_results$E, col = "blue")
-    lines(days, seir_results$I, col = "red")
-    lines(days, seir_results$R, col = "green")
+        mtext(title, outer = TRUE, line = -1.5, cex = 1.2)
 
-    legend("topright", legend = c("S (Susceptible)", "E (Exposed)", "I (Infectious)", "R (Recovered)"),
-            col = c("black", "blue", "red", "green "), lty = 1, cex = 0.8)
-
-    mtext(title, outer = TRUE, line = -1.5, cex = 1.2)
 
 }
 
-
-
 # Run Simulation
-alink <- get.net(runif(n), h1,15)
-nseir(beta, h1, alink)
+alink <- get.net(runif(n), h1, 15)
+results_list <- list(
+    nseir(beta, h1, alink)
+    ,nseir(beta, h1, alink)
+)
+plot_seir(results_list)
