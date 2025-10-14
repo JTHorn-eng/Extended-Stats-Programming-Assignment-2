@@ -4,12 +4,17 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
   
   x <- rep(0, n)
   
+  k <- (alpha[3]*nc*beta) / (mean(beta)^2*(n-1))
+  
   start_inf <- sample(1:n, ni, replace=FALSE)
   x[start_inf] <- 2
   
   S <- E <- I <- R <- t_vec <- rep(0,nt)
   S[1] <- sum(x==0)
   I[1] <- sum(x==2)
+  
+  unif1 <- numeric(n)
+  unif2 <- numeric(n)
   
   for (t in 2:nt){
     
@@ -25,7 +30,7 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
       personal_con[house_ii] <- alpha[1]
       personal_con[pnet_ii] <- alpha[2]
       
-      rnet_con <- (alpha[3]*nc*beta*beta[i])/(mean(beta)^2*(n-1))
+      rnet_con <- k * beta[i]
       
       unif1 <- runif(n)
       unif2 <- runif(n)
