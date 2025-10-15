@@ -54,10 +54,10 @@ get.net = function(beta, h, n_c=15) {
   social_network <- vector("list",n)
   
   # loop through each person in the network
-  for (i in 1:n) {
+  for (i in 1:(n-1)) {
     # Create probabilities that person i is connected with each other person. 
     # Only consider person i and onwards as these values will be symmetric.
-    network_probs <- c(rep(0,i-1), (beta[i]*n_c*beta[i:n])/(mean(beta)^2*(n-1))) 
+    network_probs <- c(rep(0,i), (beta[i]*n_c*beta[(i+1):n])/(mean(beta)^2*(n-1))) 
     
     # Create probabilities to compare the network probs with.
     # The first i values are 1 as the first (i-1) have already been assigned networks, and person i cannot be in a network with themself. 
@@ -97,29 +97,22 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
   # Sets the number of people in the model
   n <- length(h)
   
-  # Finds the initial number of people who should be infected
-  ni <- round(n * pinf)
+  # Initialise the vectors we will return from this function
+  S <- E <- I <- R <- t_vec <- rep(0,nt)
   
   # Creates a vector to contain the class of each individual each day
   x <- rep(0, n)
   
+  # Randomly samples the initial infected people from our population
+  x[sample(1:n, round(n * pinf))] <- 2
+  
+  # Find the initial number of susceptible and infected people
+  S[1] <- sum(x==0); I[1] <- sum(x==2)
+  
   # Calculates a constant used inside a loop once for efficiency
   k <- (alpha[3]*nc*beta) / (mean(beta)^2*(n-1))
   
-  # Randomly samples the initial infected people from our population
-  start_inf <- sample(1:n, ni, replace=FALSE)
-  x[start_inf] <- 2
-  
-  # Initialise the vectors we will return from this function
-  S <- E <- I <- R <- t_vec <- rep(0,nt)
-  
-  # Find the initial number of susceptible and infected people
-  S[1] <- sum(x==0)
-  I[1] <- sum(x==2)
-  
-  # Initialise vectors that will become random uniform vectors later
-  unif1 <- numeric(n)
-  unif2 <- numeric(n)
+  # is it necessary to do this with k or is it worth for performance?
   
   # Iterate the following over each day in the simulation
   for (t in 2:nt){
@@ -127,41 +120,27 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
     # Initialise the vector to store people infected each day
     any_inf_vec <- rep(0,n)
     
-    # Find the number of people infected on day t
-    ii_inf <- which(x==2)
-    
     # Iterate over each infected person to find out which susceptible people are infected by at least one infected person
-    for (i in ii_inf){
-      
-      # Find the household and personal social network links of the current infected person
-      house_ii <- which(h==h[i])
-      pnet_ii <- alink[[i]]
-      
+    for (i in which(x==2)){
+
       # Create a new vector where the jth entry will be the probability that person i infects person j by household or by the personal network
       personal_con <- rep(0,n)
       
       # If person j is in the household network of person i, set the jth value in personal_con to alpha_h
-      personal_con[house_ii] <- alpha[1]
+      personal_con[which(h==h[i])] <- alpha[1]
       # If person j is in the household network of person i, set the jth value in personal_con to alpha_c
-      personal_con[pnet_ii] <- alpha[2]
+      personal_con[alink[[i]]] <- alpha[2]
       
       # Find the probabilities of person i infecting each other person in the random network.
       rnet_con <- k * beta[i]
       
-      # Create two random uniform deviates of length n to simulate infections
-      unif1 <- runif(n)
-      unif2 <- runif(n)
-      
       # Simulate the probability that each person was infected by person i by household or personal network
-      inf_vec1 <- personal_con >= unif1
+      inf_vec1 <- personal_con >= runif(n)
       # Simulate the probability that each person was infected by person i by random network
-      inf_vec2 <- rnet_con >= unif2
-      
-      # Simulate the probability that each person was infected by person i
-      inf_vec <- inf_vec1 | inf_vec2
+      inf_vec2 <- rnet_con >= runif(n)
       
       # Stores whether each person was infected by any infected person in the model on day t
-      any_inf_vec <- inf_vec | any_inf_vec
+      any_inf_vec <- inf_vec1 | inf_vec2 | any_inf_vec
     }
     
     # Create uniform random deviates
@@ -248,7 +227,7 @@ plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
     mtext(title, outer = TRUE, line = 1, cex = 1.2)
 }
 
-
+system.time({
 # Run models
 # Specify the number of people in the simulation and the maximum number of people in a given household
 n = 10000; hmax = 5
@@ -261,6 +240,7 @@ h1 <- rep(rep(1:n, sample(1:hmax,n, replace=TRUE)), length.out=n)
 
 # Simulate personal network information
 alink <- get.net(runif(n), h1, 15)
+
 
 # Create a list of models (using nseir) to compare
 results_list <- list(
@@ -279,6 +259,8 @@ results_list <- list(
 
 )
 plot_seir(results_list)
+
+})
 
 # Standard Model
 # -------------------------------------------------------------------------
