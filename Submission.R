@@ -181,7 +181,6 @@ plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
     #' 
     #' @param seir_results_list A list of all model results
     #' @param title optional title for overall window
-    #'     
 
     # Generate the grid layout with margin outside layout for legend
     par(mfrow = c(2, 2), mar = c(4, 4, 2, 1), oma = c(0, 0, 4, 6))
