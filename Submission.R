@@ -219,7 +219,7 @@ plot_seir(results_list)
 # This represents a typical SEIR model with household and personal 
 # networks. Day 0-10 a small number of infections initially appear. Between
 # days 30-40 the number of infected people reaches its peak as many susceptible
-# people are already infected/immune. (recovered). As a result, between day 50-70 
+# people are already infected/immune. As a result, between day 50-70 
 # new infections decrease rapidly and finally the epidemic stablises around day 
 # 80-100 as almost all people have recovered.
 
