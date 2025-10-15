@@ -134,8 +134,15 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
       # Find the probabilities of person i infecting each other person in the random network.
       rnet_con <- k * beta[i]
       
+      # Find which people are conncected to person i by household or personal network
+      con_ii <- which(personal_con != 0)
+      
+      # Make a vector of uniform random deviates where only indices that correspond to contacts are sampled
+      unif1 <- rep(1,n)
+      unif1[con_ii] <- runif(length(con_ii))
+      
       # Simulate the probability that each person was infected by person i by household or personal network
-      inf_vec1 <- personal_con >= runif(n)
+      inf_vec1 <- personal_con >= unif1
       # Simulate the probability that each person was infected by person i by random network
       inf_vec2 <- rnet_con >= runif(n)
       

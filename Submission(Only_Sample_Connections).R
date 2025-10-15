@@ -155,15 +155,12 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
       unif2 <- runif(n)
       
       # Simulate the probability that each person was infected by person i by household or personal network
-      inf_vec1 <- personal_con > unif1
+      inf_vec1 <- personal_con >= unif1
       # Simulate the probability that each person was infected by person i by random network
       inf_vec2 <- rnet_con >= unif2
       
-      # Simulate the probability that each person was infected by person i
-      inf_vec <- inf_vec1 | inf_vec2
-      
       # Stores whether each person was infected by any infected person in the model on day t
-      any_inf_vec <- inf_vec | any_inf_vec
+      any_inf_vec <- inf_vec1 | inf_vec2 | any_inf_vec
     }
     
     # Create uniform random deviates
@@ -221,7 +218,7 @@ plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
     plot(
       days
       , seir_results$S
-      , type = "l"
+      , type="l"
       , col = "black"
       , ylim = c(0, n)
       , xlab = "Day"
