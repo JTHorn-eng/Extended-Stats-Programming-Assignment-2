@@ -117,10 +117,6 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
   S[1] <- sum(x==0)
   I[1] <- sum(x==2)
   
-  # Initialise vectors that will become random uniform vectors later
-  unif1 <- numeric(n)
-  unif2 <- numeric(n)
-  
   # Iterate the following over each day in the simulation
   for (t in 2:nt){
     
@@ -148,12 +144,18 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
       # Find the probabilities of person i infecting each other person in the random network.
       rnet_con <- k * beta[i]
       
-      # Create two random uniform deviates of length n to simulate infections
-      unif1 <- runif(n)
+      # Find which people are conncected to person i by household or personal network
+      con_ii <- which(personal_con != 0)
+      
+      # Make a vector of uniform random deviates where only indices that correspond to contacts are sampled
+      unif1 <- rep(1,n)
+      unif1[con_ii] <- runif(length(con_ii))
+      
+      # Separate uniform random deviate of length n
       unif2 <- runif(n)
       
       # Simulate the probability that each person was infected by person i by household or personal network
-      inf_vec1 <- personal_con >= unif1
+      inf_vec1 <- personal_con > unif1
       # Simulate the probability that each person was infected by person i by random network
       inf_vec2 <- rnet_con >= unif2
       
@@ -186,72 +188,72 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
 }
 
 plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
-
-    #' Plots a list of SEIR model results in a 2x2 grid layout, showing the
-    #' evolution of SEIR (Susceptible, Exposed, Infectious, Recovered) 
-    #' compartments for one or more simulation results. Each element of
-    #' `seir_results_list` should be a list containing vectors `S`, `E`,
-    #' `I`, and `R` representing daily counts of individuals in each state.
-    #' 
-    #' @param seir_results_list A list of all model results
-    #' @param title optional title for overall window
-    #'     
-
-    # Generate the grid layout with margin outside layout for legend
-    par(mfrow = c(2, 2), mar = c(4, 4, 2, 1), oma = c(0, 0, 4, 6))
-
-    # Create subplot titles
-    plot_titles <- c(
-      'Standard Model'
-      ,'Random Mixing Only'
-      ,'Constant Sociability Parameters'
-      ,'Random Mixing Only and Constant Sociability Parameters'
+  
+  #' Plots a list of SEIR model results in a 2x2 grid layout, showing the
+  #' evolution of SEIR (Susceptible, Exposed, Infectious, Recovered) 
+  #' compartments for one or more simulation results. Each element of
+  #' `seir_results_list` should be a list containing vectors `S`, `E`,
+  #' `I`, and `R` representing daily counts of individuals in each state.
+  #' 
+  #' @param seir_results_list A list of all model results
+  #' @param title optional title for overall window
+  #'     
+  
+  # Generate the grid layout with margin outside layout for legend
+  par(mfrow = c(2, 2), mar = c(4, 4, 2, 1), oma = c(0, 0, 4, 6))
+  
+  # Create subplot titles
+  plot_titles <- c(
+    'Standard Model'
+    ,'Random Mixing Only'
+    ,'Constant Sociability Parameters'
+    ,'Random Mixing Only and Constant Sociability Parameters'
+  )
+  
+  for (i in seq_along(seir_results_list)) {
+    
+    # Obtain results timeframe in days
+    seir_results <- seir_results_list[[i]]
+    n_days <- length(seir_results$S)
+    days <- 1:n_days
+    
+    # Generate line graphs for each class member of the population per day
+    plot(
+      days
+      , seir_results$S
+      , type = "l"
+      , col = "black"
+      , ylim = c(0, n)
+      , xlab = "Day"
+      , ylab = "Number of People"
+      , main = plot_titles[i]
     )
-
-    for (i in seq_along(seir_results_list)) {
-        
-        # Obtain results timeframe in days
-        seir_results <- seir_results_list[[i]]
-        n_days <- length(seir_results$S)
-        days <- 1:n_days
-
-        # Generate line graphs for each class member of the population per day
-        plot(
-            days
-            , seir_results$S
-            , type = "l"
-            , col = "black"
-            , ylim = c(0, n)
-            , xlab = "Day"
-            , ylab = "Number of People"
-            , main = plot_titles[i]
-        )
-        lines(days, seir_results$E, col = "blue")
-        lines(days, seir_results$I, col = "red")
-        lines(days, seir_results$R, col = "green")
-    }
-
-    # End layout plotting
-    par(xpd = NA)
-
-    # Create a clear legend for all plots
-    legend("topright",
-        inset = c(-0.55, 0),
-        legend = c("S (Susceptible)", "E (Exposed)", "I (Infectious)", "R (Recovered)"),
-        col = c("black", "blue", "red", "green"),
-        lty = 1,
-        xpd = NA,
-        bty = "n",
-        cex = 0.8)
-
-    # Add a title for the overall window
-    mtext(title, outer = TRUE, line = 1, cex = 1.2)
+    lines(days, seir_results$E, col = "blue")
+    lines(days, seir_results$I, col = "red")
+    lines(days, seir_results$R, col = "green")
+  }
+  
+  # End layout plotting
+  par(xpd = NA)
+  
+  # Create a clear legend for all plots
+  legend("topright",
+         inset = c(-0.55, 0),
+         legend = c("S (Susceptible)", "E (Exposed)", "I (Infectious)", "R (Recovered)"),
+         col = c("black", "blue", "red", "green"),
+         lty = 1,
+         xpd = NA,
+         bty = "n",
+         cex = 0.8)
+  
+  # Add a title for the overall window
+  mtext(title, outer = TRUE, line = 1, cex = 1.2)
 }
 
 
 # Run models
 # Specify the number of people in the simulation and the maximum number of people in a given household
-n = 10000; hmax = 5
+system.time({n = 10000; hmax = 5
 
 # Simulate beta values as standard uniform random deviates
 beta <- runif(n)
@@ -264,22 +266,22 @@ alink <- get.net(runif(n), h1, 15)
 
 # Create a list of models (using nseir) to compare
 results_list <- list(
-
-    # Standard model with personal, household, and random mixing
-    nseir(beta, h1, alink)
-
-    # Run model with random mixing only
-    ,nseir(beta, h1, alink, alpha=c(0, 0, 0.04))
-    
-    # Run model with constant sociability parameters for each person
-    ,nseir(beta=rep(mean(beta),n), h1, alink)
-    
-    # Run model with constant sociability parameters for each person and only consider random mixing
-    ,nseir(beta=rep(mean(beta),n), h1, alink, alpha=c(0, 0, 0.04))
-
+  
+  # Standard model with personal, household, and random mixing
+  nseir(beta, h1, alink)
+  
+  # Run model with random mixing only
+  ,nseir(beta, h1, alink, alpha=c(0, 0, 0.04))
+  
+  # Run model with constant sociability parameters for each person
+  ,nseir(beta=rep(mean(beta),n), h1, alink)
+  
+  # Run model with constant sociability parameters for each person and only consider random mixing
+  ,nseir(beta=rep(mean(beta),n), h1, alink, alpha=c(0, 0, 0.04))
+  
 )
 plot_seir(results_list)
-
+})
 # Standard Model
 # -------------------------------------------------------------------------
 
