@@ -41,7 +41,7 @@ get.net = function(beta, h, n_c=15) {
   #' Creates a list of vectors, with each vector at position i containing the indices of people that person i is connected with socially.
   #' This is done by looping through each person, calculating their network based on the probability they are connected to someone else, 
   #' and then recording these values at position i of the list, and then recording the value i at each index of the list of the person
-  #' in the social network
+  #' in the social network.
   #' @param beta A list of uniform random deviates
   #' @param h a vector describing who shares houses
   #' @param n_c a value dictating the average number of connections per person.
@@ -81,7 +81,8 @@ get.net = function(beta, h, n_c=15) {
 }
 
 
-nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt = 100,pinf = .005){
+nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt = 100,pinf = .005) {
+
   n <- length(h)
   ni <- round(n * pinf)
   
@@ -191,10 +192,47 @@ plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
     mtext(title, outer = TRUE, line = -1.5, cex = 1.2)
 }
 
-# Run Simulation
+
+# Run models
 alink <- get.net(runif(n), h1, 15)
 results_list <- list(
+
+    # Standard model with personal, household and random mixing
     nseir(beta, h1, alink)
+
+    # Run model with random mixing only
+    ,nseir(beta, h1, alink, alpha=c(0, 0, 0.04))
 
 )
 plot_seir(results_list)
+
+# Standard Model
+# -------------------------------------------------------------------------
+
+# This represents a typical SEIR model with household and personal 
+# networks. Day 0-10 a small number of infections initially appear. Between
+# days 30-40 the number of infected people reaches its peak as many susceptible
+# people are already infected/immune. (recovered). As a result, between day 50-70 
+# new infections decrease rapidly and finally the epidemic stablises around day 
+# 80-100 as almost all people have recovered.
+
+
+# Random mixing only
+# -------------------------------------------------------------------------
+
+# We see a similar trend compared with the standard model
+# in terms of changes in SEIR numbers, however the number of exposed 
+# people peaks sooner and larger at around day 20.
+
+# Infected individuals mostly contact people they already know
+# within household/personal networks, meaning once their household 
+# or close network becomes infected, they run out of new susceptibles
+# before the infection reaches the rest of the population.
+
+# However without personal and household networks, the population 
+# mixes homogenously with less specific population interaction
+# ,causing the E and I curves to rise and peak earlier. It appears
+# that the rate of recovery is also larger, however this is due to larger
+# numbers of infected people per day, the rate of recovery remains constant
+# in both this model and the standard.
+# 
