@@ -153,6 +153,12 @@ plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
     # Generate the grid layout with margin outside layout for legend
     par(mfrow = c(2, 2), mar = c(4, 4, 2, 1), oma = c(0, 0, 4, 6))
 
+    # Create subplot titles
+    plot_titles <- c(
+      'Standard Model'
+      ,'Random Mixing Only'
+    )
+
     for (i in seq_along(seir_results_list)) {
         
         # Obtain results timeframe in days
@@ -169,6 +175,7 @@ plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
             , ylim = c(0, n)
             , xlab = "Day"
             , ylab = "Number of People"
+            , main = plot_titles[i]
         )
         lines(days, seir_results$E, col = "blue")
         lines(days, seir_results$I, col = "red")
@@ -189,7 +196,7 @@ plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
         cex = 0.8)
 
     # Add a title for the overall window
-    mtext(title, outer = TRUE, line = -1.5, cex = 1.2)
+    mtext(title, outer = TRUE, line = 1, cex = 1.2)
 }
 
 
