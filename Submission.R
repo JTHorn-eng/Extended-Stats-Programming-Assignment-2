@@ -180,7 +180,6 @@ plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
     #' 
     #' @param seir_results_list A list of all model results
     #' @param title optional title for overall window
-    #'     
 
     # Generate the grid layout with margin outside layout for legend
     par(mfrow = c(2, 2), mar = c(4, 4, 2, 1), oma = c(0, 0, 4, 6))
@@ -214,20 +213,20 @@ plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
         lines(days, seir_results$E, col = "blue")
         lines(days, seir_results$I, col = "red")
         lines(days, seir_results$R, col = "green")
+
+        legend("topright",
+              inset = c(0, 0),
+              legend = c("S (Susceptible)", "E (Exposed)", "I (Infectious)", "R (Recovered)"),
+              col = c("black", "blue", "red", "green"),
+              lty = 1,
+              xpd = NA,
+              bty = "n",
+              cex = 0.8
+          )
     }
 
     # End layout plotting
     par(xpd = NA)
-
-    # Create a clear legend for all plots
-    legend("topright",
-        inset = c(-0.55, 0),
-        legend = c("S (Susceptible)", "E (Exposed)", "I (Infectious)", "R (Recovered)"),
-        col = c("black", "blue", "red", "green"),
-        lty = 1,
-        xpd = NA,
-        bty = "n",
-        cex = 0.8)
 
     # Add a title for the overall window
     mtext(title, outer = TRUE, line = 1, cex = 1.2)
