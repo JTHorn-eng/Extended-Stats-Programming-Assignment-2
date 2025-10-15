@@ -7,8 +7,13 @@
 #
 ### About
 #
-# This document contains an implementation of an SEIR model as 
-# described in the Extended Statistical Programming module.
+# This document is the code to run an SEIR model and prints the plots of 4 different implementations of the model.
+# The program primarily uses two functions to do this: get.net() and seir().
+# This SEIR model can account for different transmission rates between people sharing houses of different sizes,
+# social networks of different sizes, and random mixing. The housing sharing assumes a uniform distribution of house sizes and
+# the social networks allow for variable social network sizes, depending on their 'sociability' parameter.
+# The code concludes with a commentary on the 4 different models. 
+# 
 #
 #
 ### Contributions:
@@ -16,24 +21,15 @@
 # All members attended the majority of workshops and communicated remotely about progress made outside of
 # class time.
 #
-# Colin McDonagh (%)  
+# Colin McDonagh (33 %) Wrote tha majority of the nseir function and led the commentary of the different models  
 #                      
+# Matthew Poole  (34 %) Wrote the code to distribute people to houses, optimised the get.net function and nseir function
+#                      
+# James Horn     (33 %) Wrote the original get.net function and wrote the plot function 
 #                     
-#                      
-#                      
-#
-# Matthew Poole  (%)  
-#                      
-#                      
-#                      
-#                       
-#
-# James Horn     (%)  
-#                     
-#                     
-#
 
-get.net = function(beta, h, n_c=15) {
+
+get.net = function(beta, h, nc=15) {
   #' Creates a list of vectors, with each vector at position i containing the indices of people that person i is connected with socially.
   #' This is done by looping through each person, calculating their network based on the probability they are connected to someone else, 
   #' and then recording these values at position i of the list, and then recording the value i at each index of the list of the person
@@ -53,11 +49,14 @@ get.net = function(beta, h, n_c=15) {
   # Generate an empty list to populate with connections
   social_network <- vector("list",n)
   
+  # Calculates a constant used inside a loop once for efficiency to calculate the probability that two people are connected socially.
+  k <- nc*beta/(mean(beta)^2*(n-1))
+  
   # loop through each person in the network
   for (i in 1:(n-1)) {
     # Create probabilities that person i is connected with each other person. 
     # Only consider person i and onwards as these values will be symmetric.
-    network_probs <- c(rep(0,i), (beta[i]*n_c*beta[(i+1):n])/(mean(beta)^2*(n-1))) 
+    network_probs <- c(rep(0,i), beta[i]*k[(i+1):n]) 
     
     # Create probabilities to compare the network probs with.
     # The first i values are 1 as the first (i-1) have already been assigned networks, and person i cannot be in a network with themself. 
