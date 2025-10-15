@@ -268,33 +268,39 @@ plot_seir(results_list)
 
 })
 
-# Standard Model
-# -------------------------------------------------------------------------
-
-# This represents a typical SEIR model with household and personal 
-# networks. Day 0-10 a small number of infections initially appear. Between
-# days 30-40 the number of infected people reaches its peak as many susceptible
-# people are already infected/immune. As a result, between day 50-70 
-# new infections decrease rapidly and finally the epidemic stablises around day 
-# 80-100 as almost all people have recovered.
-
-
-# Random mixing only
-# -------------------------------------------------------------------------
-
-# We see a similar trend compared with the standard model
-# in terms of changes in SEIR numbers, however the number of exposed 
-# people peaks sooner and larger at around day 20.
-
-# Infected individuals mostly contact people they already know
-# within household/personal networks, meaning once their household 
-# or close network becomes infected, they run out of new susceptibles
-# before the infection reaches the rest of the population.
-
-# However without personal and household networks, the population 
-# mixes homogenously with less specific population interaction
-# ,causing the E and I curves to rise and peak earlier. It appears
-# that the rate of recovery is also larger, however this is due to larger
-# numbers of infected people per day, the rate of recovery remains constant
-# in both this model and the standard.
-# 
+################################################################################
+#'
+###' Model Comparison
+#'
+##' Full Model vs Random Network Only:
+# ------------------------------------------------------------------------------
+#' The models that contain the household and contact network components account
+#' for more variability in the infection rates. Thus, we observe a more diffuse 
+#' distribution of infectious individuals than the models that only consider the 
+#' random network effect, which overestimate the peak severity of the pandemic. 
+#' We also observe that the peak of infection occurs later for models that contain
+#' household and contact network components than it does for the random network
+#' models. 
+#' 
+#' The additional variability described above comes from allowing the models that 
+#' contain household and personal network information to consider behavioral and 
+#' random aspects of individuals more intimately:
+#' 
+#' Variability is introduced in the personal network since the more social an 
+#' individual is, the more people they are likely to have in their contact 
+#' network, and thus the more people they are likely to infect/be infected by 
+#' (where as the opposite is true for unsociable people).
+#' 
+#' The household structure adds variability that is independent of sociability
+#' parameter values (unlike the random network only model for variable beta 
+#' values) as household sizes are assumed to be uniformly distributed from 1 to 5.
+#' 
+#' We also note that the full model is more robust when neglecting the random 
+#' variability of sociability between individuals, as the results are very similar
+#' (only around 100 more people are infected in the constant sociability model).
+#' This could be the case as the household and contact network structures still 
+#' encode some underlying random sociability structure into the model). 
+#' The random network only model is far more sensitive to this change, and 
+#' results in the pandemic infecting far more people (and being severe for 
+#' longer) than the random network model with variable sociability parameters.
+# ------------------------------------------------------------------------------
