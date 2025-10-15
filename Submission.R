@@ -82,59 +82,110 @@ get.net = function(beta, h, n_c=15) {
 
 
 nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt = 100,pinf = .005) {
-
+  #' This function implements and simulates the SEIR model described in the introduction to this document for a given set of parameter
+  #' values. It calculates the amount of people that are in the susceptible, exposed, infected, and recovered classes each day based 
+  #' on households, a personal social network, and a random interaction network (where households and the personal networks are disjoint). 
+  #' @param beta A list of uniform random deviates
+  #' @param h A vector indexing who shares houses
+  #' @param alink A list of vectors, with the vector at position i being the social network of person i.
+  #' @param alpha A vector of parameters for alpha_h, alpha_c, and alpha_r (as described above) respectively.
+  #' @param delta The probability that an infected individual transfers from the infected class to the recovered class each day.
+  #' @param gamma The probability that an exposed individual transfers from the exposed class to the infected class each day.
+  #' @param n_c A value of the average number of personal connections per person.
+  #' @param nt The number of days to simulate the model over.
+  #' @param pinf The proportion of the population infected at the start of the simulation.
+  #' 
+  #' @return A list of vectors, where these vectors contain the number of people in the susceptible class, exposed class, infected class, 
+  #' recovered class, and the day these correspond to respectively.
+  
+  # Sets the number of people in the model
   n <- length(h)
+  
+  # Finds the initial number of people who should be infected
   ni <- round(n * pinf)
   
+  # Creates a vector to contain the class of each individual each day
   x <- rep(0, n)
   
+  # Calculates a constant used inside a loop once for efficiency
   k <- (alpha[3]*nc*beta) / (mean(beta)^2*(n-1))
   
+  # Randomly samples the initial infected people from our population
   start_inf <- sample(1:n, ni, replace=FALSE)
   x[start_inf] <- 2
   
+  # Initialise the vectors we will return from this function
   S <- E <- I <- R <- t_vec <- rep(0,nt)
+  
+  # Find the initial number of susceptible and infected people
   S[1] <- sum(x==0)
   I[1] <- sum(x==2)
   
+  # Initialise vectors that will become random uniform vectors later
   unif1 <- numeric(n)
   unif2 <- numeric(n)
   
+  # Iterate the following over each day in the simulation
   for (t in 2:nt){
     
+    # Initialise the vector to store people infected each day
     any_inf_vec <- rep(0,n)
     
+    # Find the number of people infected on day t
     ii_inf <- which(x==2)
     
+    # Iterate over each infected person to find out which susceptible people are infected by at least one infected person
     for (i in ii_inf){
+      
+      # Find the household and personal social network links of the current infected person
       house_ii <- which(h==h[i])
       pnet_ii <- alink[[i]]
       
+      # Create a new vector where the jth entry will be the probability that person i infects person j by household or by the personal network
       personal_con <- rep(0,n)
+      
+      # If person j is in the household network of person i, set the jth value in personal_con to alpha_h
       personal_con[house_ii] <- alpha[1]
+      # If person j is in the household network of person i, set the jth value in personal_con to alpha_c
       personal_con[pnet_ii] <- alpha[2]
       
+      # Find the probabilities of person i infecting each other person in the random network.
       rnet_con <- k * beta[i]
       
+      # Create two random uniform deviates of length n to simulate infections
       unif1 <- runif(n)
       unif2 <- runif(n)
       
+      # Simulate the probability that each person was infected by person i by household or personal network
       inf_vec1 <- personal_con >= unif1
+      # Simulate the probability that each person was infected by person i by random network
       inf_vec2 <- rnet_con >= unif2
       
+      # Simulate the probability that each person was infected by person i
       inf_vec <- inf_vec1 | inf_vec2
       
+      # Stores whether each person was infected by any infected person in the model on day t
       any_inf_vec <- inf_vec | any_inf_vec
     }
     
-    u <- runif(n) ## uniform random deviates
-    x[x==2&u<delta] <- 3 ## I -> R with prob delta 
-    x[x==1&u<gamma] <- 2 ## E -> I with prob gamma 
-    x[x==0&(1*any_inf_vec)==1] <- 1 ## S -> E with prob beta*I[i-1] 
+    # Create uniform random deviates
+    u <- runif(n)
+    
+    # Infected people transition to recovered with class probability delta            
+    x[x==2&u<delta] <- 3 
+    # Exposed people transition to infected class with probability gamma
+    x[x==1&u<gamma] <- 2  
+    
+    # (Only) Susceptible people transition to exposed class as calculated above
+    x[x==0&(1*any_inf_vec)==1] <- 1
+    
+    # Sum the total people in each class and increment the day
     S[t] <- sum(x==0); E[t] <- sum(x==1)
     I[t] <- sum(x==2); R[t] <- sum(x==3)
     t_vec[t] <- t
   }  
+  
+  # Return the list of susceptible, exposed, infected, and recovered people on each day and the vector of day indices
   return(list(S=S,E=E,I=I,R=R,t=t_vec))
 }
 
