@@ -213,6 +213,7 @@ plot_seir = function(seir_results_list, n, title = 'SEIR Model Results') {
     #' `I`, and `R` representing daily counts of individuals in each state.
     #' 
     #' @param seir_results_list A list of all model results
+    #' @param n the population size for each plot's y-axis
     #' @param title optional title for overall window
 
     # Generate the grid layout with margin outside layout for legend
