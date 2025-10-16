@@ -204,7 +204,7 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15,
   return(list(S=S,E=E,I=I,R=R,t=t_vec))
 }
 
-plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
+plot_seir = function(seir_results_list, n, title = 'SEIR Model Results') {
 
     #' Plots a list of SEIR model results in a 2x2 grid layout, showing the
     #' evolution of SEIR (Susceptible, Exposed, Infectious, Recovered) 
@@ -239,7 +239,7 @@ plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
             , seir_results$S
             , type = "l"
             , col = "black"
-            , ylim = c(0, n_days)
+            , ylim = c(0, n)
             , xlab = "Day"
             , ylab = "Number of People"
             , main = plot_titles[i]
@@ -300,7 +300,7 @@ results_list <- list(
     ,nseir(beta=rep(mean(beta),n), h1, alink, alpha=c(0, 0, 0.04))
 
 )
-plot_seir(results_list)
+plot_seir(results_list, n)
 
 })
 
