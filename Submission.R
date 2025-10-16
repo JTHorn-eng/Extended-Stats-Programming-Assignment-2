@@ -1,7 +1,6 @@
 ###########################################################
 # File:    Submission.R
-# Authors: Colin McDonagh (s2213748), Matthew Poole (s2892092)
-# , James Horn (s2304075)
+# Authors: Colin McDonagh (s2213748), Matthew Poole (s2892092), James Horn (s2304075)
 # Date:    2025-10-15
 # Github URL: https://github.com/JTHorn-eng/Extended-Stats-Programming-Assignment-2/blob/main/Submission.R
 ###########################################################
@@ -44,7 +43,7 @@ get.net = function(beta, h, nc=15) {
   #' index of the list of the person in the social network.
   #' @param beta A list of n uniform random deviates
   #' @param h    A vector of length n describing who shares houses
-  #' @param n_c  A value dictating the average number of connections per person.
+  #' @param nc  A value dictating the average number of connections per person.
   #' 
   #' @return a list of vectors, with the vector at position i being the social 
   #' network of person i.
@@ -108,7 +107,7 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15,
   #'              infected class to the recovered class each day.
   #' @param gamma The probability that an exposed individual transfers from the 
   #'              exposed class to the infected class each day.
-  #' @param n_c   A value of the average number of personal connections per 
+  #' @param nc   A value of the average number of personal connections per 
   #'              person.
   #' @param nt    The number of days to simulate the model over.
   #' @param pinf  The proportion of the population infected at the start of the 
