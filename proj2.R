@@ -2,7 +2,7 @@
 # File:    Submission.R
 # Authors: Colin McDonagh (s2213748), Matthew Poole (s2892092), James Horn (s2304075)
 # Date:    2025-10-15
-# Github URL: https://github.com/JTHorn-eng/Extended-Stats-Programming-Assignment-2/blob/main/Submission.R
+# Github URL: https://github.com/JTHorn-eng/Extended-Stats-Programming-Assignment-2/blob/main/proj2.R
 ###########################################################
 #
 ### About
