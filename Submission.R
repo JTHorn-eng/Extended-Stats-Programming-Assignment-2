@@ -156,7 +156,7 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
         snc <- nc[which(x[nc]==0)]
         
         # Samples whether people in snce are exposed (by contact network) by person i
-        snce <- snc[runif(length(shc))<=alpha[2]]
+        snce <- snc[runif(length(snc))<=alpha[2]]
       }
       
       
