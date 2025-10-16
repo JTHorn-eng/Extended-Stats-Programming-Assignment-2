@@ -217,7 +217,7 @@ plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
     #' @param title optional title for overall window
 
     # Generate the grid layout with margin outside layout for legend
-    par(mfrow = c(2, 2), mar = c(4, 4, 2, 1), oma = c(0, 0, 4, 6))
+    par(mfrow = c(2, 2), mar = c(4, 4, 2, 1))
 
     # Create subplot titles
     plot_titles <- c(
@@ -240,7 +240,7 @@ plot_seir = function(seir_results_list, title = 'SEIR Model Results') {
             , seir_results$S
             , type = "l"
             , col = "black"
-            , ylim = c(0, n)
+            , ylim = c(0, n_days)
             , xlab = "Day"
             , ylab = "Number of People"
             , main = plot_titles[i]
