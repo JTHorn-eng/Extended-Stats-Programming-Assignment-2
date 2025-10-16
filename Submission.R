@@ -89,33 +89,22 @@ get.net = function(beta, h, nc=15) {
 }
 
 
-nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, 
-                  nt = 100,pinf = .005) {
-  #' This function implements and simulates the SEIR model described in the 
-  #' introduction to this document for a given set of parameter values. It 
-  #' calculates the amount of people that are in the susceptible, exposed, 
-  #' infected, and recovered classes each day based on households, a personal 
-  #' social network, and a random interaction network (where households and the 
-  #' personal networks are disjoint). 
-  #' @param beta  A list of n uniform random deviates
-  #' @param h     An n vector indexing who shares houses
-  #' @param alink An n list of vectors, with the vector at position i being the 
-  #'              social network of person i.
-  #' @param alpha A vector of parameters for alpha_h, alpha_c, and alpha_r 
-  #'              (as described above) respectively.
-  #' @param delta The probability that an infected individual transfers from the 
-  #'              infected class to the recovered class each day.
-  #' @param gamma The probability that an exposed individual transfers from the 
-  #'              exposed class to the infected class each day.
-  #' @param nc   A value of the average number of personal connections per 
-  #'              person.
-  #' @param nt    The number of days to simulate the model over.
-  #' @param pinf  The proportion of the population infected at the start of the 
-  #'              simulation.
+nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt = 100,pinf = .005) {
+  #' This function implements and simulates the SEIR model described in the introduction to this document for a given set of parameter
+  #' values. It calculates the amount of people that are in the susceptible, exposed, infected, and recovered classes each day based 
+  #' on households, a personal social network, and a random interaction network (where households and the personal networks are disjoint). 
+  #' @param beta A list of uniform random deviates
+  #' @param h A vector indexing who shares houses
+  #' @param alink A list of vectors, with the vector at position i being the social network of person i.
+  #' @param alpha A vector of parameters for alpha_h, alpha_c, and alpha_r (as described above) respectively.
+  #' @param delta The probability that an infected individual transfers from the infected class to the recovered class each day.
+  #' @param gamma The probability that an exposed individual transfers from the exposed class to the infected class each day.
+  #' @param n_c A value of the average number of personal connections per person.
+  #' @param nt The number of days to simulate the model over.
+  #' @param pinf The proportion of the population infected at the start of the simulation.
   #' 
-  #' @return A list of vectors, where these vectors contain the number of people 
-  #'         in the susceptible class, exposed class, infected class, recovered 
-  #'         class, and the day these correspond to respectively.
+  #' @return A list of vectors, where these vectors contain the number of people in the susceptible class, exposed class, infected class, 
+  #' recovered class, and the day these correspond to respectively.
   
   # Sets the number of people in the model
   n <- length(h)
@@ -140,49 +129,53 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15,
   # Iterate the following over each day in the simulation
   for (t in 2:nt){
     
-    # Initialise the vector to store people infected each day
-    any_inf_vec <- rep(0,n)
+    # Initialise a vector to store the people exposed by each infected person
+    exp_vector <- vector("list", length=length(which(x==2)))
     
-    # Iterate over each infected person to find out which susceptible people are 
+    # Iterate over each infected person to find out which susceptible people are
     # exposed by at least one infected person
     for (i in which(x==2)){
-
-      # Create a new vector where the jth entry will be the probability that 
-      # person i infects person j by household or by the personal network
-      personal_con <- rep(0,n)
       
-      # If person j is in the household network of person i, set the jth value 
-      # in personal_con to alpha_h
-      personal_con[which(h==h[i])] <- alpha[1]
-      # If person j is in the household network of person i, set the jth value 
-      # in personal_con to alpha_c
-      personal_con[alink[[i]]] <- alpha[2]
+      # Reset the indices of susceptible people infected after each iteration
+      shce <- snce <- srce <- numeric(0)
       
-      # Find the probabilities of person i infecting each other person in the 
-      # random network.
-      rnet_con <- k * beta[i]
+      # Only consider the household model if the user specifies this
+      if(alpha[1]>0){
+        # Find indices of susceptible people in a household with infected person i
+        shc <- which((h==h[i])&x==0)
+        # Samples whether people in shc are exposed (by household) by person i
+        shce <- shc[runif(length(shc))<=alpha[1]]
+      }
       
-      # Find which people are connected to person i by household or personal 
-      # network
-      con_ii <- which(personal_con != 0)
       
-      unif1 <- rep(1,n) # To compare with random mixing
-      unif1[con_ii] <- runif(length(con_ii)) # To compare with house & social networks
+      # Only consider the contact network if the user specifies this
+      if(alpha[2]>0){
+        # Find indices of susceptible people in a contact network with infected 
+        # person i
+        nc <- alink[[i]]
+        snc <- nc[which(x[nc]==0)]
+        
+        # Samples whether people in snce are exposed (by contact network) by person i
+        snce <- snc[runif(length(shc))<=alpha[2]]
+      }
       
-      # Simulate the probability that each person was infected by person i by 
-      # household or personal network
-      inf_vec1 <- personal_con >= unif1
-      # Simulate the probability that each person was infected by person i by 
-      # random network
-      inf_vec2 <- rnet_con >= runif(n)
       
-      # Stores whether each person was infected by any infected person in the 
-      # model on day t
-      any_inf_vec <- inf_vec1 | inf_vec2 | any_inf_vec
+      # Only consider the random network if the user specifies this
+      if(alpha[3]>0){
+        # Finds indices of susceptible people
+        src <- which(x==0)
+        # Samples whether people in src are exposed (by random network) by person i
+        srce <- src[runif(length(src)) <= beta[i]*k[src]]
+      } 
+      
+      # Append unique people exposed by person i to a running list
+      exp_vector[[i]] <- unique(c(shce, snce, srce))
     }
     
-    # Create uniform random deviates to simulate moving to infected and recovered
-    # states
+    # Find the unique susceptible people exposed on day t by any infected person
+    any_exp_vector <- unique(unlist(exp_vector))
+    
+    # Create uniform random deviates
     u <- runif(n)
     
     # Infected people transition to recovered with class probability delta            
@@ -190,8 +183,8 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15,
     # Exposed people transition to infected class with probability gamma
     x[x==1&u<gamma] <- 2  
     
-    # (Only) Susceptible people transition to exposed class as calculated above
-    x[x==0&(1*any_inf_vec)==1] <- 1
+    # Susceptible people transition to exposed class as calculated above
+    x[any_exp_vector] <- 1
     
     # Sum the total people in each class and increment the day
     S[t] <- sum(x==0); E[t] <- sum(x==1)
@@ -199,8 +192,7 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15,
     t_vec[t] <- t
   }  
   
-  # Return the list of susceptible, exposed, infected, and recovered people on 
-  # each day and the vector of day indices
+  # Return the list of susceptible, exposed, infected, and recovered people on each day and the vector of day indices
   return(list(S=S,E=E,I=I,R=R,t=t_vec))
 }
 
