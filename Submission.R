@@ -308,7 +308,7 @@ plot_seir(results_list)
 #'
 ###' Model Comparison
 #'
-##' Full Model vs Random Network Only:
+##' Household, Contact Network, and Random Network Models vs Random Network Only Models:
 # ------------------------------------------------------------------------------
 #' The models that contain the household and contact network components account
 #' for more variability in the infection rates. Thus, we observe a more diffuse 
