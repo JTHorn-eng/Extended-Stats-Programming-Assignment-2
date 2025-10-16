@@ -310,6 +310,7 @@ results_list <- list(
     ,nseir(beta=rep(mean(beta),n), h1, alink, alpha=c(0, 0, 0.04))
 
 )
+# The plot may move the legend slightly depending on the window size.
 plot_seir(results_list, n)
 
 ################################################################################
