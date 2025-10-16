@@ -89,22 +89,32 @@ get.net = function(beta, h, nc=15) {
 }
 
 
-nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt = 100,pinf = .005) {
-  #' This function implements and simulates the SEIR model described in the introduction to this document for a given set of parameter
-  #' values. It calculates the amount of people that are in the susceptible, exposed, infected, and recovered classes each day based 
-  #' on households, a personal social network, and a random interaction network (where households and the personal networks are disjoint). 
-  #' @param beta A list of uniform random deviates
-  #' @param h A vector indexing who shares houses
-  #' @param alink A list of vectors, with the vector at position i being the social network of person i.
-  #' @param alpha A vector of parameters for alpha_h, alpha_c, and alpha_r (as described above) respectively.
-  #' @param delta The probability that an infected individual transfers from the infected class to the recovered class each day.
-  #' @param gamma The probability that an exposed individual transfers from the exposed class to the infected class each day.
-  #' @param n_c A value of the average number of personal connections per person.
-  #' @param nt The number of days to simulate the model over.
-  #' @param pinf The proportion of the population infected at the start of the simulation.
+nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, 
+                  nt = 100,pinf = .005) {
+  #' This function implements and simulates the SEIR model described in the 
+  #' introduction to this document for a given set of parameter values. It 
+  #' calculates the amount of people that are in the susceptible, exposed, 
+  #' infected, and recovered classes each day based on households, a personal 
+  #' social network, and a random interaction network (where households and the 
+  #' personal networks are disjoint). 
+  #' @param beta  A list of uniform random deviates
+  #' @param h     A vector indexing who shares houses
+  #' @param alink A list of vectors, with the vector at position i being the 
+  #'              social network of person i.
+  #' @param alpha A vector of parameters for alpha_h, alpha_c, and alpha_r (as 
+  #'              described above) respectively.
+  #' @param delta The probability that an infected individual transfers from the 
+  #'              infected class to the recovered class each day.
+  #' @param gamma The probability that an exposed individual transfers from the 
+  #'              exposed class to the infected class each day.
+  #' @param n_c   A value of the average number of personal connections per person.
+  #' @param nt    The number of days to simulate the model over.
+  #' @param pinf  The proportion of the population infected at the start of the 
+  #'              simulation.
   #' 
-  #' @return A list of vectors, where these vectors contain the number of people in the susceptible class, exposed class, infected class, 
-  #' recovered class, and the day these correspond to respectively.
+  #' @return A list of vectors, where these vectors contain the number of people 
+  #'          in the susceptible class, exposed class, infected class, recovered 
+  #'          class, and the day these correspond to respectively.
   
   # Sets the number of people in the model
   n <- length(h)
@@ -112,19 +122,18 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
   # Initialise the vectors we will return from this function
   S <- E <- I <- R <- t_vec <- rep(0,nt)
   
-  # Creates a vector to contain the class of each individual each day
+  # Create a vector to contain the class of each individual each day
   x <- rep(0, n)
   
-  # Randomly samples the initial infected people from our population
+  # Randomly sample the initial infected people from our population
   x[sample(1:n, round(n * pinf))] <- 2
   
   # Find the initial number of susceptible and infected people
   S[1] <- sum(x==0); I[1] <- sum(x==2)
   
-  # Calculates a constant used inside a loop once for efficiency
+  # Calculates a constant to be used inside a loop once for efficiency. This will
+  # be used to calculate the proability of being exposed through random mixing.
   k <- (alpha[3]*nc*beta) / (mean(beta)^2*(n-1))
-  
-  # is it necessary to do this with k or is it worth for performance?
   
   # Iterate the following over each day in the simulation
   for (t in 2:nt){
@@ -175,7 +184,10 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
     # Find the unique susceptible people exposed on day t by any infected person
     any_exp_vector <- unique(unlist(exp_vector))
     
-    # Create uniform random deviates
+    # Susceptible people transition to exposed class as calculated above
+    x[any_exp_vector] <- 1
+    
+    # Create uniform random deviates for transition probabilities of other states.
     u <- runif(n)
     
     # Infected people transition to recovered with class probability delta            
@@ -183,8 +195,7 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
     # Exposed people transition to infected class with probability gamma
     x[x==1&u<gamma] <- 2  
     
-    # Susceptible people transition to exposed class as calculated above
-    x[any_exp_vector] <- 1
+
     
     # Sum the total people in each class and increment the day
     S[t] <- sum(x==0); E[t] <- sum(x==1)
@@ -192,7 +203,8 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15, nt =
     t_vec[t] <- t
   }  
   
-  # Return the list of susceptible, exposed, infected, and recovered people on each day and the vector of day indices
+  # Return the list of susceptible, exposed, infected, and recovered people on 
+  # each day and the vector of day indices
   return(list(S=S,E=E,I=I,R=R,t=t_vec))
 }
 
@@ -311,10 +323,10 @@ plot_seir(results_list, n)
 #' The models that contain the household and contact network components account
 #' for more variability in the infection rates. Thus, we observe a more diffuse 
 #' distribution of infectious individuals than the models that only consider the 
-#' random network effect, which overestimate the peak severity of the pandemic. 
+#' random network effect, which likely overestimate the peak severity of the pandemic. 
 #' We also observe that the peak of infection occurs later for models that contain
-#' household and contact network components than it does for the random network
-#' models. 
+#' household and contact network components than it does for the models that only
+#' consider random mixing.
 #' 
 #' The additional variability described above comes from allowing the models that 
 #' contain household and personal network information to consider behavioral and 
@@ -338,3 +350,20 @@ plot_seir(results_list, n)
 #' results in the pandemic infecting far more people (and being severe for 
 #' longer) than the random network model with variable sociability parameters.
 # ------------------------------------------------------------------------------
+#' According to our code, the standard models that take into account housing and
+#' network structure have the longest amount of time until the peak infection, as 
+#' well as the lowest peak of infections. This is likely because the housing and 
+#' network structure introduce more variability into the chances of people being 
+#' infected, through bigger social groups and bigger households. As a result, not 
+#' everyone has the same expected time until infection. The random mixing only 
+#' models likely overestimate the peak of infections, as well as likely underestimate 
+#' the time it takes until such a point. 
+#' 
+#' The random mixing only models have the same expected time until peak infections as
+#' one another, but the model with constant sociability parameters has very little
+#' variability whatsoever. We see here that almost everyone becomes infected by
+#' the disease. Interestingly, the random mixing only model with some variability 
+#' tends to infect the fewest people overall. We were also surprised that there 
+#' was not more difference between the standard model and the standard model with 
+#' constant sociability parameters, given the higher variability in the standard 
+#' model between social network sizes and random mixing.
