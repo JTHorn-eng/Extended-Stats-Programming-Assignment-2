@@ -277,7 +277,7 @@ plot_seir = function(seir_results_list, n, title = 'SEIR Model Results') {
     mtext(title, outer = TRUE, line = 1, cex = 1.2)
 }
 
-system.time({
+
 # Run models
 # Specify the number of people in the simulation and the maximum number of 
 # people in a given household
@@ -312,58 +312,37 @@ results_list <- list(
 )
 plot_seir(results_list, n)
 
-})
-
 ################################################################################
 #'
 ###' Model Comparison
 #'
 ##' Household, Contact Network, and Random Network Models vs Random Network Only Models:
 # ------------------------------------------------------------------------------
-#' The models that contain the household and contact network components account
-#' for more variability in the infection rates. Thus, we observe a more diffuse 
-#' distribution of infectious individuals than the models that only consider the 
-#' random network effect, which likely overestimate the peak severity of the pandemic. 
-#' We also observe that the peak of infection occurs later for models that contain
-#' household and contact network components than it does for the models that only
-#' consider random mixing.
-#' 
-#' The additional variability described above comes from allowing the models that 
-#' contain household and personal network information to consider behavioral and 
-#' random aspects of individuals more intimately:
-#' 
-#' Variability is introduced in the personal network since the more social an 
-#' individual is, the more people they are likely to have in their contact 
-#' network, and thus the more people they are likely to infect/be infected by 
-#' (where as the opposite is true for unsociable people).
-#' 
-#' The household structure adds variability that is independent of sociability
-#' parameter values (unlike the random network only model for variable beta 
-#' values) as household sizes are assumed to be uniformly distributed from 1 to 5.
-#' 
-#' We also note that the full model is more robust when neglecting the random 
-#' variability of sociability between individuals, as the results are very similar
-#' (only around 100 more people are infected in the constant sociability model).
-#' This could be the case as the household and contact network structures still 
-#' encode some underlying random sociability structure into the model). 
-#' The random network only model is far more sensitive to this change, and 
-#' results in the pandemic infecting far more people (and being severe for 
-#' longer) than the random network model with variable sociability parameters.
-# ------------------------------------------------------------------------------
-#' According to our code, the standard models that take into account housing and
+#' According to the results, the standard models that take into account housing and
 #' network structure have the longest amount of time until the peak infection, as 
 #' well as the lowest peak of infections. This is likely because the housing and 
-#' network structure introduce more variability into the chances of people being 
-#' infected, through bigger social groups and bigger households. As a result, not 
-#' everyone has the same expected time until infection. The random mixing only 
-#' models likely overestimate the peak of infections, as well as likely underestimate 
-#' the time it takes until such a point. 
+#' contact network structure introduce more variability into the probability of 
+#' individuals being infected. As a result, people have more variable expected times 
+#' until infection, creating a more diffuse infection distribution. The random 
+#' mixing only models likely underestimate the time it takes until reaching the 
+#' peak of infection, and can also overestimate or underestimate the overall number
+#' of individuals infected (depending on if sociability variability is considered).
 #' 
-#' The random mixing only models have the same expected time until peak infections as
-#' one another, but the model with constant sociability parameters has very little
-#' variability whatsoever. We see here that almost everyone becomes infected by
-#' the disease. Interestingly, the random mixing only model with some variability 
-#' tends to infect the fewest people overall. We were also surprised that there 
-#' was not more difference between the standard model and the standard model with 
-#' constant sociability parameters, given the higher variability in the standard 
-#' model between social network sizes and random mixing.
+#' The random mixing model with constant sociability parameters has a slightly longer
+#' expected time until peak infection when compared to the random mixing model with 
+#' variable sociability parameters. This is potentially because the "sociable" 
+#' sub-population is likely to get infected quickly (due to having more personal 
+#' contacts as well as more random contacts). We note that the random mixing only 
+#' model with variable sociability parameters infects the least amount of people. 
+#' This is likely due to those with a low sociability score being unlikely to become 
+#' infected at all, due to no contact networks or households infecting them alongside 
+#' low odds of becoming infected in the random network, capping the infection's 
+#' severity. 
+#' 
+#' Finally, we note that the standard models perform very similarly, this could 
+#' be due to the household contacts and contact networks encoding social variability
+#' implicitly into the model, even when "sociability parameters" are taken to be 
+#' constant.
+#' 
+#' The inferences made above would, however, require further testing (e.g. plotting
+#' the infection rates of the three methods of infection) to make them more concrete.
