@@ -220,6 +220,8 @@ plot_seir = function(seir_results_list, n, title = 'SEIR Model Results') {
     )
 
     for (i in seq_along(seir_results_list)) {
+
+        par(xpd=FALSE)
         
         # Obtain results timeframe in days
         seir_results <- seir_results_list[[i]]
@@ -237,6 +239,9 @@ plot_seir = function(seir_results_list, n, title = 'SEIR Model Results') {
             , ylab = "Number of People"
             , main = plot_titles[i]
         )
+
+        grid()
+      
         lines(days, seir_results$E, col = "blue")
         lines(days, seir_results$I, col = "red")
         lines(days, seir_results$R, col = "green")
