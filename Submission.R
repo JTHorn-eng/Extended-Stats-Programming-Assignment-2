@@ -9,7 +9,7 @@
 #
 # This document is the code to run an SEIR model and prints the plots of 4 
 # different implementations of the model. The program primarily uses two 
-# functions to do this: get.net() and seir(). This SEIR model can account for 
+# functions to do this: get.net() and nseir(). This SEIR model can account for 
 # different transmission rates between people sharing houses of different sizes,
 # social networks of different sizes, and random mixing. The housing sharing 
 # assumes a uniform distribution of house sizes and the social networks allow 
@@ -227,7 +227,7 @@ plot_seir = function(seir_results_list, n, title = 'SEIR Model Results') {
     plot_titles <- c(
       'Standard Model'
       ,'Random Mixing Only'
-      ,'Constant Sociability Parameters'
+      ,'Standard Model with Constant Sociability Parameters'
       ,'Random Mixing Only and Constant Sociability Parameters'
     )
 
