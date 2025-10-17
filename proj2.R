@@ -184,9 +184,6 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15,
     # Find the unique susceptible people exposed on day t by any infected person
     any_exp_vector <- unique(unlist(exp_vector))
     
-    # Susceptible people transition to exposed class as calculated above
-    x[any_exp_vector] <- 1
-    
     # Create uniform random deviates for transition probabilities of other states.
     u <- runif(n)
     
@@ -194,7 +191,9 @@ nseir <- function(beta,h,alink,alpha=c(.1,.01,.01),delta=.2,gamma=.4,nc=15,
     x[x==2&u<delta] <- 3 
     # Exposed people transition to infected class with probability gamma
     x[x==1&u<gamma] <- 2  
-    
+
+    # Susceptible people transition to exposed class as calculated above
+    x[any_exp_vector] <- 1
 
     
     # Sum the total people in each class and increment the day
